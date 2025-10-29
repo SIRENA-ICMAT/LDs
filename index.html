@@ -65,7 +65,7 @@
   }
 
   // === Cargar KML ===
-  new L.KML('todo_en_uno_sin_puntos.kml', {async: true}).on('loaded', function(e){
+  new L.KML('todo_en_uno.kml', {async: true}).on('loaded', function(e){
       map.fitBounds(e.target.getBounds());
   }).addTo(map);
 
