@@ -2,15 +2,17 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Animación LDM con geolocalización</title>
+<title>Animación LDM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Leaflet CSS y JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-sA+3gMxLwAMbgrI7pqMZqDlPn9p8i6h6OQ6Xc3S9Cjo=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-o6oC3XNgK+2cQskTQU/PLB+y4FhLFp0z+Dz58tUu2nY=" crossorigin=""></script>
 
-<!-- Leaflet KML -->
-<script src="https://unpkg.com/leaflet-kml"></script>
+<!-- Omnivore para KML -->
+<script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.4/leaflet-omnivore.min.js"></script>
 
 <style>
   body, html { margin:0; padding:0; height:100%; }
@@ -25,67 +27,69 @@
   <button onclick="prevFrame()">&#9664; Anterior</button>
   <button onclick="nextFrame()">Siguiente &#9654;</button>
   <span id="frameNumber">1</span>
+  <button onclick="locateMe()">Mi ubicación</button>
 </div>
 
 <script>
-  // Inicializar mapa centrado aproximado
+  // === Inicializar mapa centrado aproximadamente en tu región
   var map = L.map('map').setView([27.78, -15.44], 12);
 
-  // Añadir capa base
+  // Capa base
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Limites geográficos del PNG
-  var bounds = [[27.65, -15.7], [27.9, -15.3]]; // lat_min, lon_min, lat_max, lon_max
+  // === Límites geográficos de tus imágenes (desde bounds.txt) ===
+  var bounds = [[27.65, -15.7], [27.9, -15.3]]; // [lat_min, lon_min], [lat_max, lon_max]
 
-  // Lista de imágenes de animación
+  // === Lista de frames para animación ===
   var frames = [
       'campo_M_01.png',
       'campo_M_02.png'
+      // añade más frames si los tienes
   ];
 
   var currentFrame = 0;
   var overlay = L.imageOverlay(frames[currentFrame], bounds).addTo(map);
 
-  // Funciones de navegación
   function updateFrame() {
       overlay.setUrl(frames[currentFrame]);
       document.getElementById('frameNumber').innerText = currentFrame + 1;
   }
+
   function nextFrame() {
-      currentFrame = (currentFrame + 1) % frames.length;
-      updateFrame();
-  }
-  function prevFrame() {
-      currentFrame = (currentFrame - 1 + frames.length) % frames.length;
+      if(currentFrame < frames.length - 1) currentFrame++;
+      else currentFrame = 0;
       updateFrame();
   }
 
-  // Cargar KML
-  new L.KML('todo_en_uno_sin_puntos.kml', {async: true}).on('loaded', function(e){
-      map.fitBounds(e.target.getBounds());
-  }).addTo(map);
+  function prevFrame() {
+      if(currentFrame > 0) currentFrame--;
+      else currentFrame = frames.length - 1;
+      updateFrame();
+  }
+
+  // === Cargar KML combinado con Omnivore ===
+  omnivore.kml('todo_en_uno.kml')
+      .on('ready', function() {
+          map.fitBounds(this.getBounds());
+      })
+      .addTo(map);
 
   // === Geolocalización ===
-  map.locate({setView:true, maxZoom:16});
+  function locateMe() {
+      map.locate({setView: true, maxZoom: 14});
+  }
 
-  function onLocationFound(e) {
-      var radius = e.accuracy / 2;
-
+  map.on('locationfound', function(e){
       L.marker(e.latlng).addTo(map)
-        .bindPopup("¡Estás aquí! Precisión aprox. " + radius.toFixed(1) + " m")
+        .bindPopup("¡Aquí estás!")
         .openPopup();
+  });
 
-      L.circle(e.latlng, radius).addTo(map);
-  }
-
-  function onLocationError(e) {
-      alert("No se pudo obtener la ubicación: " + e.message);
-  }
-
-  map.on('locationfound', onLocationFound);
-  map.on('locationerror', onLocationError);
+  map.on('locationerror', function(e){
+      alert("No se pudo obtener tu ubicación");
+  });
 
 </script>
 </body>
