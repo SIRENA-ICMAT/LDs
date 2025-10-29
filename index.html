@@ -9,11 +9,11 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Cargar KML con Leaflet -->
-<script src="https://unpkg.com/leaflet-kml/leaflet-kml.js"></script>
+<!-- Omnivore para KML desde CDN alternativo -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-omnivore/0.3.4/leaflet-omnivore.min.js"></script>
 
-<!-- Cargar Google Maps (si lo deseas) -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+<!-- Cargar Google Maps (asegúrate de reemplazar con tu API Key válida) -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 
 <style>
   body, html { margin:0; padding:0; height:100%; }
@@ -69,11 +69,11 @@
   }
 
   // Cargar KML desde GitHub Pages (ajusta la URL según tu repositorio)
-  var kmlLayer = new L.KML('https://miusuario.github.io/repositorio/todo_en_uno.kml', {async: true});
-  kmlLayer.on('loaded', function(e) {
-      map.fitBounds(e.target.getBounds());
-  });
-  map.addLayer(kmlLayer);
+  omnivore.kml('https://miusuario.github.io/repositorio/todo_en_uno.kml')
+      .on('ready', function() {
+          map.fitBounds(this.getBounds());
+      })
+      .addTo(map);
 
   // Geolocalización
   function locateMe() {
