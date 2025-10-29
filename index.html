@@ -12,6 +12,9 @@
 <!-- Omnivore para KML -->
 <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.4/leaflet-omnivore.min.js"></script>
 
+<!-- Cargar Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+
 <style>
   body, html { margin:0; padding:0; height:100%; }
   #map { width:100%; height:100%; }
@@ -32,9 +35,10 @@
   // Inicializar mapa
   var map = L.map('map').setView([27.78, -15.44], 12);
 
-  // Capa base
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+  // Capa base de Google Maps
+  L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google'
   }).addTo(map);
 
   // Límites de las imágenes
@@ -64,8 +68,8 @@
       updateFrame();
   }
 
-  // Cargar KML desde GitHub Pages
-  omnivore.kml('./todo_en_uno.kml')
+  // Cargar KML desde GitHub Pages (ajusta la URL según tu repositorio)
+  omnivore.kml('https://miusuario.github.io/repositorio/todo_en_uno.kml')
       .on('ready', function() {
           map.fitBounds(this.getBounds());
       })
@@ -88,7 +92,6 @@
   map.on('locationerror', function(e){
       alert("No se pudo obtener tu ubicación");
   });
-
 </script>
 </body>
 </html>
