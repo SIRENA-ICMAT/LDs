@@ -6,10 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-sA+3gMxLwAMbgrI7pqMZqDlPn9p8i6h6OQ6Xc3S9Cjo=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-o6oC3XNgK+2cQskTQU/PLB+y4FhLFp0z+Dz58tUu2nY=" crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <!-- Omnivore para KML -->
 <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.4/leaflet-omnivore.min.js"></script>
@@ -31,7 +29,7 @@
 </div>
 
 <script>
-  // === Inicializar mapa centrado aproximadamente en tu región
+  // Inicializar mapa
   var map = L.map('map').setView([27.78, -15.44], 12);
 
   // Capa base
@@ -39,14 +37,13 @@
       attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // === Límites geográficos de tus imágenes (desde bounds.txt) ===
-  var bounds = [[27.65, -15.7], [27.9, -15.3]]; // [lat_min, lon_min], [lat_max, lon_max]
+  // Límites de las imágenes
+  var bounds = [[27.65, -15.7], [27.9, -15.3]];
 
-  // === Lista de frames para animación ===
+  // Lista de frames (rutas relativas)
   var frames = [
-      'campo_M_01.png',
-      'campo_M_02.png'
-      // añade más frames si los tienes
+      './campo_M_01.png',
+      './campo_M_02.png'
   ];
 
   var currentFrame = 0;
@@ -58,25 +55,23 @@
   }
 
   function nextFrame() {
-      if(currentFrame < frames.length - 1) currentFrame++;
-      else currentFrame = 0;
+      currentFrame = (currentFrame + 1) % frames.length;
       updateFrame();
   }
 
   function prevFrame() {
-      if(currentFrame > 0) currentFrame--;
-      else currentFrame = frames.length - 1;
+      currentFrame = (currentFrame - 1 + frames.length) % frames.length;
       updateFrame();
   }
 
-  // === Cargar KML combinado con Omnivore ===
-  omnivore.kml('todo_en_uno.kml')
+  // Cargar KML desde GitHub Pages
+  omnivore.kml('./todo_en_uno.kml')
       .on('ready', function() {
           map.fitBounds(this.getBounds());
       })
       .addTo(map);
 
-  // === Geolocalización ===
+  // Geolocalización
   function locateMe() {
       map.locate({setView: true, maxZoom: 14});
   }
