@@ -74,7 +74,7 @@
   }
 
   // Cargar archivo GeoJSON desde GitHub Pages
-  fetch('https://miusuario.github.io/repositorio/map.geojson')
+  fetch('./map.geojson')
       .then(response => response.json())
       .then(geojsonData => {
         L.geoJSON(geojsonData).addTo(map);
