@@ -78,22 +78,30 @@
       .then(response => response.json())
       .then(geojsonData => {
         L.geoJSON(geojsonData, {
+          // Estilo de las líneas del campo de vectores (en blanco)
+          style: function (feature) {
+            return {
+              color: "white",    // Color de las líneas (campo de vectores en blanco)
+              weight: 3,         // Grosor de las líneas
+              opacity: 1         // Opacidad de las líneas
+            };
+          },
           pointToLayer: function (feature, latlng) {
-            // Filtrar los puntos de la jaula y asignarles un color rosa
-            if (feature.properties.name === 'Jaula') {  // Suponiendo que la propiedad 'name' es 'Jaula'
+            // Personalizar los puntos (si hay puntos en el geojson)
+            if (feature.properties.name === 'Jaula') {
               return L.circleMarker(latlng, {
                 radius: 10,           // Tamaño del marcador
-                fillColor: "green",    // Color rosa
+                fillColor: "red",    // Color rosa
                 color: "black",       // Borde negro
                 weight: 2,            // Grosor del borde
                 opacity: 1,           // Opacidad del borde
                 fillOpacity: 0.7      // Opacidad del relleno
               });
             } else {
-              // Puntos normales (puedes elegir otro color o estilo para estos)
+              // Puntos normales
               return L.circleMarker(latlng, {
                 radius: 8,
-                fillColor: "red",    // Color de relleno para los demás puntos
+                fillColor: "green",    // Color de relleno para los demás puntos
                 color: "black",       // Borde negro
                 weight: 2,
                 opacity: 1,
