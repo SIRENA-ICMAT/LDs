@@ -84,10 +84,16 @@
   map.locate({setView:true, maxZoom:14});
 
   map.on('locationfound', function(e){
+      // Asegurarnos de que la ubicación fue obtenida
+      console.log("Ubicación encontrada:", e.latlng);
+
       // Agregar marcador en la ubicación
       var marker = L.marker(e.latlng).addTo(map)
         .bindPopup("¡Aquí estás!")
         .openPopup();
+
+      // Opcionalmente, ajustar la vista del mapa para centrar en la ubicación
+      map.setView(e.latlng, 14);
   });
 
   map.on('locationerror', function(e){
