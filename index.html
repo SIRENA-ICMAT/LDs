@@ -42,7 +42,7 @@
     var imageBounds = [[27.650000, -15.700000], [27.900000, -15.300000]]; 
     L.imageOverlay('campo_M.png', imageBounds, {opacity: 0.6}).addTo(map);
 
-    // === Cargar archivo KML desde GitHub Pages con CORS Anywhere ===
+    // === Cargar archivo KML (todo_en_uno.kml con estaciones + vectores) ===
     omnivore.kml('https://cors-anywhere.herokuapp.com/https://miusuario.github.io/repositorio/todo_en_uno.kml').on('ready', function(e) {
         this.addTo(map);
         map.fitBounds(this.getBounds());
