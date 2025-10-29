@@ -77,7 +77,20 @@
   fetch('./map.geojson')
       .then(response => response.json())
       .then(geojsonData => {
-        L.geoJSON(geojsonData).addTo(map);
+        // Personalizar la carga de los puntos con color
+        L.geoJSON(geojsonData, {
+          pointToLayer: function (feature, latlng) {
+            // Cambiar el color de los puntos
+            return L.circleMarker(latlng, {
+              radius: 8,           // Tamaño del marcador
+              fillColor: "red",    // Color de relleno
+              color: "black",      // Color del borde
+              weight: 2,           // Grosor del borde
+              opacity: 1,          // Opacidad del borde
+              fillOpacity: 0.6     // Opacidad del relleno
+            });
+          }
+        }).addTo(map);
         map.fitBounds(L.geoJSON(geojsonData).getBounds());
       })
       .catch(error => {
