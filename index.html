@@ -16,6 +16,7 @@
   body, html { margin:0; padding:0; height:100%; }
   #map { width:100%; height:100%; }
   #controls { position:absolute; top:10px; left:10px; z-index:1000; background:white; padding:5px; border-radius:5px;}
+  #dateDisplay { font-weight: bold; margin-left: 10px; }
 </style>
 </head>
 <body>
@@ -25,6 +26,7 @@
   <button onclick="prevFrame()">&#9664; Anterior</button>
   <button onclick="nextFrame()">Siguiente &#9654;</button>
   <span id="frameNumber">1</span>
+  <span id="dateDisplay">Fecha: --</span> <!-- Este es el nuevo span para la fecha -->
   <button onclick="locateMe()">Mi ubicación</button>
 </div>
 
@@ -47,12 +49,21 @@
       './campo_M_02.png'
   ];
 
+  // Fechas correspondientes a cada frame
+  var dates = [
+      "2025-10-01",  // Fecha para el primer frame
+      "2025-10-02"   // Fecha para el segundo frame
+  ];
+
   var currentFrame = 0;
   var overlay = L.imageOverlay(frames[currentFrame], bounds).addTo(map);
 
   function updateFrame() {
       overlay.setUrl(frames[currentFrame]);
       document.getElementById('frameNumber').innerText = currentFrame + 1;
+
+      // Actualizar la fecha en el contenedor de controles
+      document.getElementById('dateDisplay').innerText = "Fecha: " + dates[currentFrame];
   }
 
   function nextFrame() {
