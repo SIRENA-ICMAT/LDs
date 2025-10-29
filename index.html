@@ -76,6 +76,9 @@
       map.locate({setView: true, maxZoom: 14});
   }
 
+  // Detectar ubicación automáticamente al cargar
+  map.locate({setView:true, maxZoom:14});
+
   map.on('locationfound', function(e){
       L.marker(e.latlng).addTo(map)
         .bindPopup("¡Aquí estás!")
