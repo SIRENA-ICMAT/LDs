@@ -1,75 +1,74 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Mapa LDM + Campo de Corrientes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Plugin para leer KML -->
-  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
-
-  <style>
-    html, body, #map {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    #map {
-      width: 100%;
-      height: 100vh;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Animación LDM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-o6oC3XNgK+2cQskTQU/PLB+y4FhLFp0z+Dz58tUu2nY="
+        crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-sA+3gMxLwAMbgrI7pqMZqDlPn9p8i6h6OQ6Xc3S9Cjo="
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet-kml"></script>
+<style>
+  body, html { margin:0; padding:0; height:100%; }
+  #map { width:100%; height:100%; }
+  #controls { position:absolute; top:10px; left:10px; z-index:1000; background:white; padding:5px; border-radius:5px;}
+</style>
 </head>
-
 <body>
-  <div id="map"></div>
 
-  <script>
-    // === Inicializar mapa ===
-    var map = L.map('map').setView([27.77, -15.46], 13);
+<div id="map"></div>
+<div id="controls">
+  <button onclick="prevFrame()">&#9664; Anterior</button>
+  <button onclick="nextFrame()">Siguiente &#9654;</button>
+  <span id="frameNumber">1</span>
+</div>
 
-    // === Capa base (Google Maps) ===
-    var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-      maxZoom: 20,
-      attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>'
-    }).addTo(map);
+<script>
+  // === Inicializar mapa ===
+  var map = L.map('map').setView([27.78, -15.44], 12);  // centro aproximado
 
-    // === Imagen georreferenciada ===
-    // ⚠️ Sustituye estos valores por los de tu bounds.txt ⚠️
-    var imageBounds = [[27.650000, -15.700000], [27.900000, -15.300000]]; 
-    L.imageOverlay('campo_M.png', imageBounds, {opacity: 0.6}).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
-    // === Cargar archivo KML (todo_en_uno.kml con estaciones + vectores) ===
-    omnivore.kml('todo_en_uno.kml').on('ready', function(e) {
-        this.addTo(map);
-        map.fitBounds(this.getBounds());
-    });
+  // === Limites geográficos del PNG (desde bounds.txt) ===
+  var bounds = [[27.65, -15.7], [27.9, -15.3]];  // [lat_min, lon_min], [lat_max, lon_max]
 
-    // === Geolocalización en tiempo real ===
-    var userMarker = null;
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(function (pos) {
-            var lat = pos.coords.latitude;
-            var lon = pos.coords.longitude;
-            if (!userMarker) {
-                userMarker = L.marker([lat, lon]).addTo(map)
-                  .bindPopup("📍 Tú estás aquí").openPopup();
-            } else {
-                userMarker.setLatLng([lat, lon]);
-            }
-        }, function (err) {
-            console.warn(`ERROR(${err.code}): ${err.message}`);
-        }, {
-            enableHighAccuracy: true,
-            maximumAge: 10000
-        });
-    } else {
-        alert("Tu dispositivo no soporta geolocalización.");
-    }
-  </script>
+  // === Lista de imágenes para animación ===
+  var frames = [
+      'campo_M_01.png',
+      'campo_M_02.png'
+  ];
+
+  var currentFrame = 0;
+  var overlay = L.imageOverlay(frames[currentFrame], bounds).addTo(map);
+
+  // === Funciones para cambiar frames ===
+  function updateFrame() {
+      overlay.setUrl(frames[currentFrame]);
+      document.getElementById('frameNumber').innerText = currentFrame + 1;
+  }
+
+  function nextFrame() {
+      if(currentFrame < frames.length - 1) currentFrame++;
+      else currentFrame = 0;
+      updateFrame();
+  }
+
+  function prevFrame() {
+      if(currentFrame > 0) currentFrame--;
+      else currentFrame = frames.length - 1;
+      updateFrame();
+  }
+
+  // === Cargar KML ===
+  new L.KML('todo_en_uno_sin_puntos.kml', {async: true}).on('loaded', function(e){
+      map.fitBounds(e.target.getBounds());
+  }).addTo(map);
+
+</script>
 </body>
 </html>
