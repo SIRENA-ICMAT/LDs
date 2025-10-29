@@ -6,67 +6,132 @@
     <name>Estaciones</name>
     <Placemark>
       <name>St.1</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.436270,27.782940,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.2</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.431140,27.771660,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.3</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.424150,27.763040,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.4</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.439110,27.753310,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.5</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.447250,27.765460,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.6</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.453590,27.773700,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.7</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.464500,27.771490,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.8</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.463300,27.759650,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.9</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.478880,27.754890,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.10</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.486220,27.763560,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.11</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.499510,27.759400,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.12</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.491330,27.749130,0</coordinates></Point>
     </Placemark>
     <Placemark>
       <name>St.13</name>
-      <Style><IconStyle><color>ff0000ff</color><scale>0.5</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ff00ffff</color>
+          <scale>0.5</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.473130,27.743540,0</coordinates></Point>
     </Placemark>
   </Folder>
@@ -74,7 +139,12 @@
     <name>Jaula</name>
     <Placemark>
       <name>Jaula</name>
-      <Style><IconStyle><color>ffff00ff</color><scale>0.6</scale></IconStyle></Style>
+      <Style>
+        <IconStyle>
+          <color>ffff00ff</color>
+          <scale>0.6</scale>
+        </IconStyle>
+      </Style>
       <Point><coordinates>-15.475214,27.769490,0</coordinates></Point>
     </Placemark>
   </Folder>
