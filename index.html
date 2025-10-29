@@ -26,7 +26,7 @@
   <button onclick="prevFrame()">&#9664; Anterior</button>
   <button onclick="nextFrame()">Siguiente &#9654;</button>
   <span id="frameNumber">1</span>
-  <span id="dateDisplay">Fecha: --</span> <!-- Este es el nuevo span para la fecha -->
+  <span id="dateDisplay">Fecha y hora: --</span> <!-- Este es el nuevo span para la fecha y hora -->
   <button onclick="locateMe()">Mi ubicación</button>
 </div>
 
@@ -49,10 +49,10 @@
       './campo_M_02.png'
   ];
 
-  // Fechas correspondientes a cada frame
-  var dates = [
-      "2025-10-01",  // Fecha para el primer frame
-      "2025-10-02"   // Fecha para el segundo frame
+  // Fechas y horas correspondientes a cada frame
+  var dateTimes = [
+      "2025-10-01 12:00:00",  // Fecha y hora para el primer frame
+      "2025-10-02 14:30:00"   // Fecha y hora para el segundo frame
   ];
 
   var currentFrame = 0;
@@ -62,8 +62,8 @@
       overlay.setUrl(frames[currentFrame]);
       document.getElementById('frameNumber').innerText = currentFrame + 1;
 
-      // Actualizar la fecha en el contenedor de controles
-      document.getElementById('dateDisplay').innerText = "Fecha: " + dates[currentFrame];
+      // Actualizar la fecha y hora en el contenedor de controles
+      document.getElementById('dateDisplay').innerText = "Fecha y hora: " + dateTimes[currentFrame];
   }
 
   function nextFrame() {
