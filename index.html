@@ -56,7 +56,7 @@
   ];
 
   var currentFrame = 0;
-  var overlay = L.imageOverlay(frames[currentFrame], bounds).addTo(map);
+  var overlay = L.imageOverlay(frames[currentFrame], bounds, {opacity: 0.6}).addTo(map);
 
   function updateFrame() {
       overlay.setUrl(frames[currentFrame]);
