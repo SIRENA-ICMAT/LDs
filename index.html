@@ -70,7 +70,7 @@
   function prevFrame() { currentFrame = (currentFrame - 1 + frames.length) % frames.length; updateFrame(); }
 
   // === CARGAR GEOJSON ===
-  fetch('./map.geojson')
+  fetch('./todo_en_uno.geojson')
     .then(response => response.json())
     .then(geojsonData => {
       L.geoJSON(geojsonData, {
