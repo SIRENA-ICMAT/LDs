@@ -88,7 +88,7 @@
         // --- Puntos (jaula, estaciones, inicio de vector) ---
         pointToLayer: function(feature, latlng) {
           // === PUNTOS DEL CAMPO DE VELOCIDADES (inicio de vector) ===
-          if (feature.properties.group === 'Inicio Vector') {
+          if (feature.properties.group === 'Final Vector') {
             return L.circleMarker(latlng, {
               radius: 2,               // 🔹 tamaño MUY pequeño
               fillColor: feature.properties.color || "white",
