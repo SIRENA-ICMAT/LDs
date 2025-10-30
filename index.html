@@ -12,138 +12,117 @@
   <style>
     body, html { margin:0; padding:0; height:100%; }
     #map { width:100%; height:100%; }
-    #controls { position:absolute; top:10px; left:10px; z-index:1000; background:white; padding:5px; border-radius:5px;}
+    #controls {
+      position:absolute;
+      top:10px; left:10px;
+      z-index:1000;
+      background:white;
+      padding:5px;
+      border-radius:5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
     #dateDisplay { font-weight: bold; margin-left: 10px; }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
+
 <div id="controls">
   <button onclick="prevFrame()">&#9664; Anterior</button>
   <button onclick="nextFrame()">Siguiente &#9654;</button>
   <span id="frameNumber">1</span>
-  <span id="dateDisplay">Fecha y hora: --</span> <!-- Este es el nuevo span para la fecha y hora -->
+  <span id="dateDisplay">Fecha y hora: --</span>
   <button onclick="locateMe()">Mi ubicación</button>
 </div>
 
 <script>
-  // Inicializar mapa
-  var map = L.map('map').setView([27.78, -15.44], 12);
+  // Inicializar mapa (usando renderizado canvas para evitar bordes forzados)
+  var map = L.map('map', { renderer: L.canvas() }).setView([27.78, -15.44], 12);
 
-  // Capa base de Google Maps (si quieres usarla)
+  // Capa base de Google Maps
   L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
       attribution: '&copy; Google'
   }).addTo(map);
 
-  // Añadir el control de escala al mapa
+  // Escala
   L.control.scale({
-    position: 'bottomright',  // Posición de la escala (puedes elegir 'bottomleft', 'bottomright', 'topright', 'topleft')
-    imperial: false           // Si quieres usar el sistema métrico (true para imperial, false para métrico)
+    position: 'bottomright',
+    imperial: false
   }).addTo(map);
 
   // Límites de las imágenes
   var bounds = [[27.65, -15.7], [27.9, -15.3]];
 
-  // Lista de frames (rutas relativas)
-  var frames = [
-      './campo_M_01.png',
-      './campo_M_02.png'
-  ];
-
-  // Fechas y horas correspondientes a cada frame
-  var dateTimes = [
-      "2025-10-01 12:00:00",  // Fecha y hora para el primer frame
-      "2025-10-02 14:30:00"   // Fecha y hora para el segundo frame
-  ];
-
+  // Frames y fechas
+  var frames = ['./campo_M_01.png', './campo_M_02.png'];
+  var dateTimes = ["2025-10-01 12:00:00", "2025-10-02 14:30:00"];
   var currentFrame = 0;
   var overlay = L.imageOverlay(frames[currentFrame], bounds, {opacity: 0.6}).addTo(map);
 
   function updateFrame() {
       overlay.setUrl(frames[currentFrame]);
       document.getElementById('frameNumber').innerText = currentFrame + 1;
-
-      // Actualizar la fecha y hora en el contenedor de controles
       document.getElementById('dateDisplay').innerText = "Fecha y hora: " + dateTimes[currentFrame];
   }
+  function nextFrame() { currentFrame = (currentFrame + 1) % frames.length; updateFrame(); }
+  function prevFrame() { currentFrame = (currentFrame - 1 + frames.length) % frames.length; updateFrame(); }
 
-  function nextFrame() {
-      currentFrame = (currentFrame + 1) % frames.length;
-      updateFrame();
-  }
-
-  function prevFrame() {
-      currentFrame = (currentFrame - 1 + frames.length) % frames.length;
-      updateFrame();
-  }
-
-  // Cargar archivo GeoJSON desde GitHub Pages
+  // === CARGAR GEOJSON ===
   fetch('./map.geojson')
-      .then(response => response.json())
-      .then(geojsonData => {
-        L.geoJSON(geojsonData, {
-          // Estilo de las líneas del campo de vectores (en blanco)
-          style: function (feature) {
+    .then(response => response.json())
+    .then(geojsonData => {
+      L.geoJSON(geojsonData, {
+        // --- Líneas (vectores) ---
+        style: function(feature) {
+          if (feature.geometry.type === "LineString" || feature.geometry.type === "MultiLineString") {
             return {
-              color: "white",    // Color de las líneas (campo de vectores en blanco)
-              weight: 3,         // Grosor de las líneas
-              opacity: 1         // Opacidad de las líneas
+              color: "white",   // Vectores blancos
+              weight: 2,
+              opacity: 1
             };
-          },
-          pointToLayer: function (feature, latlng) {
-            // Personalizar los puntos (si hay puntos en el geojson)
-            if (feature.properties.name === 'Jaula') {
-              return L.circleMarker(latlng, {
-                radius: 10,           // Tamaño del marcador
-                fillColor: "green",    // Color rosa
-                color: "black",       // Borde negro
-                weight: 0,            // Grosor del borde
-                opacity: 1,           // Opacidad del borde
-                fillOpacity: 0.7      // Opacidad del relleno
-              });
-            } else {
-              // Puntos normales
-              return L.circleMarker(latlng, {
-                radius: 8,
-                fillColor: "red",    // Color de relleno para los demás puntos
-                color: "black",       // Borde negro
-                weight: 0,
-                opacity: 1,
-                fillOpacity: 0.6
-              });
-            }
           }
-        }).addTo(map);
-        map.fitBounds(L.geoJSON(geojsonData).getBounds());
-      })
-      .catch(error => {
-        console.error("Error al cargar el archivo GeoJSON:", error);
-        alert("Hubo un error al cargar el archivo GeoJSON.");
-      });
+        },
 
-  // Geolocalización
-  function locateMe() {
-      map.locate({setView: true, maxZoom: 14});
-  }
+        // --- Puntos (estaciones / jaula) ---
+        pointToLayer: function(feature, latlng) {
+          if (feature.properties.name === 'Jaula') {
+            // JAULA: verde sin borde
+            return L.circleMarker(latlng, {
+              radius: 10,
+              fillColor: "green",
+              weight: 0,
+              fillOpacity: 0.8
+            });
+          } else {
+            // ESTACIONES: rojo sin borde
+            return L.circleMarker(latlng, {
+              radius: 8,
+              fillColor: "red",
+              weight: 0,
+              fillOpacity: 0.7
+            });
+          }
+        }
+      }).addTo(map);
+    })
+    .catch(error => {
+      console.error("Error al cargar el archivo GeoJSON:", error);
+      alert("Hubo un error al cargar el archivo GeoJSON.");
+    });
 
-  // Detectar ubicación automáticamente al cargar
+  // === GEOLOCALIZACIÓN ===
+  function locateMe() { map.locate({setView: true, maxZoom: 14}); }
+
   map.locate({setView:true, maxZoom:14});
-
   map.on('locationfound', function(e){
-      // Asegurarnos de que la ubicación fue obtenida
       console.log("Ubicación encontrada:", e.latlng);
-
-      // Agregar marcador en la ubicación
-      var marker = L.marker(e.latlng).addTo(map)
+      L.marker(e.latlng).addTo(map)
         .bindPopup("¡Aquí estás!")
         .openPopup();
-
-      // Opcionalmente, ajustar la vista del mapa para centrar en la ubicación
       map.setView(e.latlng, 14);
   });
-
   map.on('locationerror', function(e){
       alert("No se pudo obtener tu ubicación");
   });
