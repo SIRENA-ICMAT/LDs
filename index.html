@@ -37,103 +37,95 @@
 </div>
 
 <script>
-  // Inicializar mapa (usando renderizado canvas para evitar bordes forzados)
+  // Inicializar mapa
   var map = L.map('map', { renderer: L.canvas() }).setView([27.78, -15.44], 12);
 
-  // Capa base de Google Maps
+  // Capa base
   L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      attribution: '&copy; Google'
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    attribution: '&copy; Google'
   }).addTo(map);
 
   // Escala
-  L.control.scale({
-    position: 'bottomright',
-    imperial: false
-  }).addTo(map);
+  L.control.scale({ position: 'bottomright', imperial: false }).addTo(map);
 
-  // Límites de las imágenes
+  // Límites de las imágenes (ajusta según bounds.txt)
   var bounds = [[27.65, -15.7], [27.9, -15.3]];
 
-  // Frames y fechas
-  var frames = ['./campo_M_01.png', './campo_M_02.png'];
-  var dateTimes = ["2025-10-01 12:00:00", "2025-10-02 14:30:00"];
+  // === LISTA DE FRAMES ===
+  var nFrames = 10; // ⚠️ pon aquí cuántos archivos has generado
+  var frames = [];
+  var geojsons = [];
+  var dateTimes = [];
+
+  for (var i = 1; i <= nFrames; i++) {
+    var num = String(i).padStart(2, '0');
+    frames.push(`./TIF/campo_M_${num}.png`);
+    geojsons.push(`./GeoJSON/mapi_${num}.geojson`);
+    // Si quieres fechas reales, mete aquí un array o cógelas de un JSON aparte
+    dateTimes.push(`Frame ${i}`);
+  }
+
+  // Variables globales
   var currentFrame = 0;
-  var overlay = L.imageOverlay(frames[currentFrame], bounds, {opacity: 0.6}).addTo(map);
+  var overlay = L.imageOverlay(frames[currentFrame], bounds, { opacity: 0.6 }).addTo(map);
+  var currentLayer = null;
+
+  // === FUNCIONES PRINCIPALES ===
+  function loadGeoJSON(idx) {
+    if (currentLayer) { map.removeLayer(currentLayer); }
+    fetch(geojsons[idx])
+      .then(res => res.json())
+      .then(data => {
+        currentLayer = L.geoJSON(data, {
+          style: feature => {
+            if (feature.geometry.type === "LineString" || feature.geometry.type === "MultiLineString") {
+              return { color: "white", weight: 2, opacity: 1 };
+            }
+          },
+          pointToLayer: (feature, latlng) => {
+            if (feature.properties.group === 'Final Vector') {
+              return L.circleMarker(latlng, { radius: 2, fillColor: "white", fillOpacity: 0.7, weight: 0 });
+            }
+            if (feature.properties.name === 'Jaula') {
+              return L.circleMarker(latlng, { radius: 10, fillColor: "green", weight: 0, fillOpacity: 0.8 });
+            }
+            if (feature.properties.group === 'Estaciones') {
+              return L.circleMarker(latlng, { radius: 8, fillColor: "red", weight: 0, fillOpacity: 0.7 });
+            }
+          }
+        }).addTo(map);
+      })
+      .catch(err => console.error("Error cargando GeoJSON:", err));
+  }
 
   function updateFrame() {
-      overlay.setUrl(frames[currentFrame]);
-      document.getElementById('frameNumber').innerText = currentFrame + 1;
-      document.getElementById('dateDisplay').innerText = "Fecha y hora: " + dateTimes[currentFrame];
+    overlay.setUrl(frames[currentFrame]);
+    document.getElementById('frameNumber').innerText = currentFrame + 1;
+    document.getElementById('dateDisplay').innerText = "Tiempo: " + dateTimes[currentFrame];
+    loadGeoJSON(currentFrame);
   }
-  function nextFrame() { currentFrame = (currentFrame + 1) % frames.length; updateFrame(); }
-  function prevFrame() { currentFrame = (currentFrame - 1 + frames.length) % frames.length; updateFrame(); }
 
-  // === CARGAR GEOJSON ===
-  fetch('./todo_en_uno.geojson')
-    .then(response => response.json())
-    .then(geojsonData => {
-      L.geoJSON(geojsonData, {
-        // --- Líneas (vectores) ---
-        style: function(feature) {
-          if (feature.geometry.type === "LineString" || feature.geometry.type === "MultiLineString") {
-            return {
-              color: "white",   // Vectores blancos
-              weight: 2,
-              opacity: 1
-            };
-          }
-        },
+  function nextFrame() {
+    currentFrame = (currentFrame + 1) % frames.length;
+    updateFrame();
+  }
 
-        // --- Puntos (jaula, estaciones, inicio de vector) ---
-        pointToLayer: function(feature, latlng) {
-          // === PUNTOS DEL CAMPO DE VELOCIDADES (inicio de vector) ===
-          if (feature.properties.group === 'Final Vector') {
-            return L.circleMarker(latlng, {
-              radius: 2,               // 🔹 tamaño MUY pequeño
-              fillColor: "white",
-              fillOpacity: 0.7,
-              weight: 0
-            });
-          }
+  function prevFrame() {
+    currentFrame = (currentFrame - 1 + frames.length) % frames.length;
+    updateFrame();
+  }
 
-          // === JAULA ===
-          if (feature.properties.name === 'Jaula') {
-            return L.circleMarker(latlng, {
-              radius: 10,
-              fillColor: "green",
-              weight: 0,
-              fillOpacity: 0.8
-            });
-          }
-
-          // === ESTACIONES ===
-          return L.circleMarker(latlng, {
-            radius: 8,
-            fillColor: "red",
-            weight: 0,
-            fillOpacity: 0.7
-          });
-        }
-      }).addTo(map);
-    })
-    .catch(error => {
-      console.error("Error al cargar el archivo GeoJSON:", error);
-      alert("Hubo un error al cargar el archivo GeoJSON.");
-    });
+  // Carga inicial
+  updateFrame();
 
   // === GEOLOCALIZACIÓN ===
-  function locateMe() { map.locate({setView: true, maxZoom: 14}); }
+  function locateMe() { map.locate({ setView: true, maxZoom: 14 }); }
 
-  map.locate({setView:true, maxZoom:14});
-  map.on('locationfound', function(e){
-      console.log("Ubicación encontrada:", e.latlng);
-      L.marker(e.latlng).addTo(map);
-      map.setView(e.latlng, 14);
+  map.on('locationfound', e => {
+    L.marker(e.latlng).addTo(map).bindPopup("¡Aquí estás!").openPopup();
   });
-  map.on('locationerror', function(e){
-      alert("No se pudo obtener tu ubicación");
-  });
+  map.on('locationerror', e => alert("No se pudo obtener tu ubicación"));
 </script>
 
 </body>
