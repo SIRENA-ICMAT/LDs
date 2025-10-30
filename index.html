@@ -118,9 +118,7 @@
   map.locate({setView:true, maxZoom:14});
   map.on('locationfound', function(e){
       console.log("Ubicación encontrada:", e.latlng);
-      L.marker(e.latlng).addTo(map)
-        .bindPopup("¡Aquí estás!")
-        .openPopup();
+      L.marker(e.latlng).addTo(map);
       map.setView(e.latlng, 14);
   });
   map.on('locationerror', function(e){
