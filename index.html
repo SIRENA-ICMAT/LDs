@@ -85,25 +85,35 @@
           }
         },
 
-        // --- Puntos (estaciones / jaula) ---
+        // --- Puntos (jaula, estaciones, inicio de vector) ---
         pointToLayer: function(feature, latlng) {
+          // === PUNTOS DEL CAMPO DE VELOCIDADES (inicio de vector) ===
+          if (feature.properties.group === 'Inicio Vector') {
+            return L.circleMarker(latlng, {
+              radius: 2,               // 🔹 tamaño MUY pequeño
+              fillColor: feature.properties.color || "white",
+              fillOpacity: 0.7,
+              weight: 0
+            });
+          }
+
+          // === JAULA ===
           if (feature.properties.name === 'Jaula') {
-            // JAULA: verde sin borde
             return L.circleMarker(latlng, {
               radius: 10,
               fillColor: "green",
               weight: 0,
               fillOpacity: 0.8
             });
-          } else {
-            // ESTACIONES: rojo sin borde
-            return L.circleMarker(latlng, {
-              radius: 8,
-              fillColor: "red",
-              weight: 0,
-              fillOpacity: 0.7
-            });
           }
+
+          // === ESTACIONES ===
+          return L.circleMarker(latlng, {
+            radius: 8,
+            fillColor: "red",
+            weight: 0,
+            fillOpacity: 0.7
+          });
         }
       }).addTo(map);
     })
