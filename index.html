@@ -37,79 +37,57 @@
 </div>
 
 <script>
-  // Inicializar mapa
+  // === INICIALIZACIÓN ===
   var map = L.map('map', { renderer: L.canvas() }).setView([27.78, -15.44], 12);
 
   // Capa base
   L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    subdomains: ['mt0','mt1','mt2','mt3'],
     attribution: '&copy; Google'
   }).addTo(map);
 
   // Escala
   L.control.scale({ position: 'bottomright', imperial: false }).addTo(map);
 
-  // Límites del dominio
+  // Límites del dominio (ajusta según tu bounds.txt)
   var bounds = [[27.65, -15.7], [27.9, -15.3]];
 
-  // --- CONFIGURACIÓN ---
-  var nFrames = 10; // Cambia según tus archivos
+  // Variables globales
   var frames = [];
   var geojsons = [];
-  for (var i = 1; i <= nFrames; i++) {
-    var num = String(i).padStart(2, '0');
-    frames.push(`./TIF/campo_M_${num}.png`);
-    geojsons.push(`./GeoJSON/mapi_${num}.geojson`);
-  }
-
-  var dateTimes = []; // se llenará desde fechas.json
+  var dateTimes = [];
   var currentFrame = 0;
-  var overlay = L.imageOverlay(frames[currentFrame], bounds, { opacity: 0.6 }).addTo(map);
+  var overlay = null;
   var currentLayer = null;
 
-  // --- Cargar fechas desde fechas.json ---
+  // === CARGAR AUTOMÁTICAMENTE LAS FECHAS Y CONSTRUIR RUTAS ===
   fetch('./dates/fechas.json')
     .then(response => response.json())
     .then(data => {
-      dateTimes = data.fechas;
+      dateTimes = data.fechas; // array de fechas
+
+      // Crear rutas automáticamente según número de fechas
+      var nFrames = dateTimes.length;
+      for (let i = 1; i <= nFrames; i++) {
+        let num = String(i).padStart(2, '0');
+        frames.push(`./TIF/campo_M_${num}.png`);
+        geojsons.push(`./GeoJSON/mapi_${num}.geojson`);
+      }
+
+      // Crear la primera capa de imagen
+      overlay = L.imageOverlay(frames[0], bounds, { opacity: 0.6 }).addTo(map);
+
+      // Mostrar primer frame
       updateFrame();
     })
     .catch(err => {
-      console.warn("No se encontró fechas.json, usando numeración por defecto");
-      dateTimes = frames.map((_, i) => `Frame ${i + 1}`);
-      updateFrame();
+      console.error("Error al cargar fechas.json:", err);
+      alert("No se pudo cargar el archivo de fechas. Asegúrate de tener dates/fechas.json");
     });
 
-  // --- Función para cargar cada GeoJSON ---
-  function loadGeoJSON(idx) {
-    if (currentLayer) map.removeLayer(currentLayer);
-    fetch(geojsons[idx])
-      .then(res => res.json())
-      .then(data => {
-        currentLayer = L.geoJSON(data, {
-          style: feature => {
-            if (feature.geometry.type === "LineString" || feature.geometry.type === "MultiLineString") {
-              return { color: "white", weight: 2, opacity: 1 };
-            }
-          },
-          pointToLayer: (feature, latlng) => {
-            if (feature.properties.group === 'Final Vector') {
-              return L.circleMarker(latlng, { radius: 2, fillColor: "white", fillOpacity: 0.7, weight: 0 });
-            }
-            if (feature.properties.name === 'Jaula') {
-              return L.circleMarker(latlng, { radius: 10, fillColor: "green", weight: 0, fillOpacity: 0.8 });
-            }
-            if (feature.properties.group === 'Estaciones') {
-              return L.circleMarker(latlng, { radius: 8, fillColor: "red", weight: 0, fillOpacity: 0.7 });
-            }
-          }
-        }).addTo(map);
-      })
-      .catch(err => console.error("Error cargando GeoJSON:", err));
-  }
-
-  // --- Actualizar frame (imagen + campo + fecha) ---
+  // === FUNCIONES DE FRAME ===
   function updateFrame() {
+    if (!overlay) return;
     overlay.setUrl(frames[currentFrame]);
     document.getElementById('frameNumber').innerText = currentFrame + 1;
     document.getElementById('dateDisplay').innerText = "Fecha y hora: " + (dateTimes[currentFrame] || "--");
@@ -126,7 +104,28 @@
     updateFrame();
   }
 
-  // --- Geolocalización ---
+  // === CARGAR GEOJSON CORRESPONDIENTE ===
+  function loadGeoJSON(idx) {
+    if (currentLayer) map.removeLayer(currentLayer);
+    fetch(geojsons[idx])
+      .then(res => res.json())
+      .then(data => {
+        currentLayer = L.geoJSON(data, {
+          style: f => (f.geometry.type.includes("Line") ? { color: "white", weight: 2, opacity: 1 } : null),
+          pointToLayer: (f, latlng) => {
+            if (f.properties.group === 'Final Vector')
+              return L.circleMarker(latlng, { radius: 2, fillColor: "white", fillOpacity: 0.7, weight: 0 });
+            if (f.properties.name === 'Jaula')
+              return L.circleMarker(latlng, { radius: 10, fillColor: "green", weight: 0, fillOpacity: 0.8 });
+            if (f.properties.group === 'Estaciones')
+              return L.circleMarker(latlng, { radius: 8, fillColor: "red", weight: 0, fillOpacity: 0.7 });
+          }
+        }).addTo(map);
+      })
+      .catch(() => console.warn("GeoJSON no encontrado para frame", idx + 1));
+  }
+
+  // === GEOLOCALIZACIÓN ===
   function locateMe() { map.locate({ setView: true, maxZoom: 14 }); }
 
   map.on('locationfound', e => {
