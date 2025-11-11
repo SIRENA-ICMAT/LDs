@@ -107,19 +107,9 @@
   // === CARGAR GEOJSON CORRESPONDIENTE ===
 function loadGeoJSON(idx) {
   if (currentLayer) map.removeLayer(currentLayer);
-
   fetch(geojsons[idx])
     .then(res => res.json())
     .then(data => {
-      // Polígonos de tierra → Fondo transparente visual (relleno semitransparente)
-      const tierraLayer = L.geoJSON(data, {
-        style: feature => ({
-          color: "none",          // Sin borde
-          fillColor: "white",     // Color de relleno (puede ser blanco o del mismo color que el fondo)
-          fillOpacity: 0.9        // Ajusta para que "tape" parcialmente o totalmente el PNG
-        })
-      }).addTo(map);
-
       currentLayer = L.geoJSON(data, {
         style: f => (f.geometry.type.includes("Line") ? { color: "white", weight: 2, opacity: 1 } : null),
         pointToLayer: (f, latlng) => {
