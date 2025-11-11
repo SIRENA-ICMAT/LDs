@@ -59,7 +59,7 @@
   var currentFrame = 0;
   var overlay = null;
   var currentLayer = null;
-  var updateTimeout = null; // para debounce
+  var latestFrameRequested = 0; // Para controlar llamadas asíncronas
 
   // === CARGAR AUTOMÁTICAMENTE LAS FECHAS Y CONSTRUIR RUTAS ===
   fetch('./dates/fechas.json')
@@ -84,26 +84,19 @@
       alert("No se pudo cargar el archivo de fechas. Asegúrate de tener dates/fechas.json");
     });
 
-  // === FUNCIONES DE FRAME CON DEBOUNCE ===
+  // === FUNCIONES DE FRAME ===
   function updateFrame() {
-    if (updateTimeout) clearTimeout(updateTimeout);
+    latestFrameRequested = currentFrame; // Marcar el último frame solicitado
 
-    updateTimeout = setTimeout(() => {
-      // Cambiar imagen del overlay
-      overlay.setUrl(frames[currentFrame]);
+    // Cambiar imagen del overlay
+    overlay.setUrl(frames[currentFrame]);
 
-      // Quitar capa GeoJSON anterior
-      if (currentLayer) map.removeLayer(currentLayer);
+    // Llamar a carga de GeoJSON
+    loadGeoJSON(currentFrame);
 
-      // Cargar GeoJSON correspondiente
-      loadGeoJSON(currentFrame);
-
-      // Actualizar info en pantalla
-      document.getElementById('frameNumber').innerText = currentFrame + 1;
-      document.getElementById('dateDisplay').innerText = "Fecha y hora: " + (dateTimes[currentFrame] || "--");
-
-      updateTimeout = null;
-    }, 100); // 100ms debounce
+    // Actualizar info en pantalla
+    document.getElementById('frameNumber').innerText = currentFrame + 1;
+    document.getElementById('dateDisplay').innerText = "Fecha y hora: " + (dateTimes[currentFrame] || "--");
   }
 
   function nextFrame() {
@@ -116,12 +109,19 @@
     updateFrame();
   }
 
-  // === CARGAR GEOJSON CORRESPONDIENTE ===
+  // === CARGAR GEOJSON CON CONTROL DE ASINCRONÍA ===
   function loadGeoJSON(idx) {
-    if (currentLayer) map.removeLayer(currentLayer);
+    var frameRequested = idx; // Guardar índice de esta petición
+
     fetch(geojsons[idx])
       .then(res => res.json())
       .then(data => {
+        // Solo dibujar si este frame es el último solicitado
+        if (frameRequested !== latestFrameRequested) return;
+
+        // Quitar capa anterior
+        if (currentLayer) map.removeLayer(currentLayer);
+
         currentLayer = L.geoJSON(data, {
           style: f => (f.geometry.type.includes("Line") ? { color: "white", weight: 2, opacity: 1 } : null),
           pointToLayer: (f, latlng) => {
