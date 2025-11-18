@@ -127,6 +127,8 @@
           pointToLayer: (f, latlng) => {
             if (f.properties.group === 'Final Vector')
               return L.circleMarker(latlng, { radius: 2, fillColor: "white", fillOpacity: 0.7, weight: 0 });
+            if (f.properties.name === 'PuntosDatos')
+              return L.circleMarker(latlng, { radius: 5, fillColor: "black", weight: 0, fillOpacity: 0.8 });
             if (f.properties.name === 'Jaula')
               return L.circleMarker(latlng, { radius: 10, fillColor: "green", weight: 0, fillOpacity: 0.8 });
             if (f.properties.group === 'Estaciones')
